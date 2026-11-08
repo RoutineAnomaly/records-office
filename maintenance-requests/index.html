@@ -1,0 +1,447 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Maintenance Requests — File 003</title>
+
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b1012;
+  --panel: #141c1e;
+  --line: #354747;
+  --green: #a3e3ba;
+  --text: #e0e9e4;
+  --muted: #9aada6;
+  --amber: #eac58c;
+  --red: #e9a5a5;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 24px 14px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.65 Consolas, "Courier New", monospace;
+}
+
+main {
+  max-width: 680px;
+  margin: auto;
+  padding: 25px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+
+header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+  margin-bottom: 22px;
+}
+
+small {
+  color: var(--green);
+  letter-spacing: 1px;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 8px 0;
+}
+
+h2 {
+  font-size: 15px;
+  color: var(--green);
+  margin-top: 25px;
+}
+
+.muted { color: var(--muted); }
+.amber { color: var(--amber); }
+.red { color: var(--red); }
+
+.status {
+  color: var(--green);
+}
+
+label {
+  display: block;
+  margin: 17px 0 6px;
+  color: var(--amber);
+}
+
+select, textarea {
+  width: 100%;
+  background: #0b1213;
+  color: var(--text);
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 12px;
+  font: inherit;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+button, .return-link {
+  background: #20342d;
+  color: var(--green);
+  border: 1px solid #47745c;
+  border-radius: 4px;
+  padding: 11px 15px;
+  font: inherit;
+  cursor: pointer;
+}
+
+button:hover, .return-link:hover {
+  background: #2b4b39;
+}
+
+button:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+.return-link:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.output {
+  margin-top: 22px;
+  padding: 18px;
+  background: #09100f;
+  border-left: 3px solid var(--green);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.output:empty {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.hidden { display: none; }
+
+.confidential {
+  margin-top: 25px;
+  padding: 20px;
+  background: #101918;
+  border: 1px dashed var(--amber);
+}
+
+.confidential h2 {
+  color: var(--amber);
+  margin-top: 0;
+}
+
+.elevator-panel {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 9px;
+  margin: 16px 0;
+}
+
+.floor {
+  background: #192321;
+  border: 1px solid var(--line);
+  text-align: center;
+  padding: 12px 5px;
+}
+
+.floor.active {
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.return-link {
+  display: inline-block;
+  margin-bottom: 18px;
+  text-decoration: none;
+}
+
+@media (max-width: 450px) {
+  main { padding: 16px; }
+  h1 { font-size: 19px; }
+}
+</style>
+</head>
+
+<body>
+<main>
+
+<header>
+  <small>ROUTINE ANOMALY // MAINTENANCE DIVISION</small>
+  <h1>MAINTENANCE REQUEST</h1>
+  <div class="muted">FILE 003 — EQUIPMENT INTEGRITY</div>
+  <div class="status">SYSTEM STATUS: EVERYTHING IS FINE</div>
+</header>
+
+<section>
+  <h2>SUBMIT A MAINTENANCE REQUEST</h2>
+
+  <p>
+    All equipment is functioning within acceptable
+    parameters.
+  </p>
+
+  <p>
+    If you believe otherwise, please submit a request.
+    Your concern will be evaluated and subsequently
+    disregarded according to standard procedure.
+  </p>
+
+  <form id="maintenanceForm">
+
+    <label for="equipment">EQUIPMENT IDENTIFICATION</label>
+    <select id="equipment" required>
+      <option value="">-- SELECT EQUIPMENT --</option>
+      <option value="stabilizer">Reality Stabilizer</option>
+      <option value="door">Exit Door</option>
+      <option value="elevator">Dimensional Elevator</option>
+      <option value="emergency">Emergency Button</option>
+    </select>
+
+    <label for="problem">DESCRIPTION OF MALFUNCTION</label>
+    <textarea
+      id="problem"
+      placeholder="Describe the problem. Please avoid mentioning reality."
+      required
+    ></textarea>
+
+    <div class="actions">
+      <button type="submit">SUBMIT REQUEST</button>
+      <button type="button" id="reset">RESET FORM</button>
+    </div>
+
+  </form>
+
+  <div
+    id="output"
+    class="output"
+    role="status"
+    aria-live="polite"
+  ></div>
+</section>
+
+<section id="elevatorSection" class="hidden">
+
+  <h2>EQUIPMENT DIAGNOSTIC — ELEVATOR 000</h2>
+
+  <p>
+    The elevator has been inspected.
+    All floors are present.
+    Their locations remain unconfirmed.
+  </p>
+
+  <div class="elevator-panel" aria-label="Elevator floor indicators">
+    <div class="floor">0</div>
+    <div class="floor">0</div>
+    <div class="floor">0</div>
+    <div class="floor">0</div>
+  </div>
+
+  <p class="muted">
+    Four floors detected. One floor number assigned.
+  </p>
+
+  <button type="button" id="recalibrate">
+    RECALIBRATE FLOOR SYSTEM
+  </button>
+
+  <div
+    id="diagnostic"
+    class="output"
+    role="status"
+    aria-live="polite"
+  ></div>
+
+</section>
+
+<section id="confidential" class="confidential hidden">
+
+  <h2>RESTRICTED MAINTENANCE NOTE</h2>
+
+  <p class="amber">
+    ACCESS LEVEL: UNNECESSARILY CONFIDENTIAL
+  </p>
+
+  <p>
+    The elevator does not move between floors.
+    It moves between different configurations
+    of the same location.
+  </p>
+
+  <p>
+    The problem is not the elevator.
+    The problem is the assumption that every
+    destination belongs to the same space.
+  </p>
+
+  <p>
+    What do we call an independent direction
+    or aspect of space, or a plane of existence
+    beyond the familiar three? (5)
+  </p>
+
+  <p class="muted">
+    This information has been classified
+    as irrelevant to maintenance operations.
+  </p>
+
+</section>
+
+<footer>
+
+  <a
+    class="return-link"
+    href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
+    target="_top"
+  >
+    ← RETURN TO RECORDS DIRECTORY
+  </a>
+
+  <div>
+    BUILD 0.0.3 // NO REPAIRS NECESSARY
+  </div>
+
+</footer>
+
+</main>
+
+<script>
+(() => {
+  const form = document.getElementById("maintenanceForm");
+  const equipment = document.getElementById("equipment");
+  const problem = document.getElementById("problem");
+  const output = document.getElementById("output");
+  const elevatorSection = document.getElementById("elevatorSection");
+  const confidential = document.getElementById("confidential");
+  const diagnostic = document.getElementById("diagnostic");
+  const floors = [...document.querySelectorAll(".floor")];
+
+  let calibrationAttempts = 0;
+
+  const responses = {
+    stabilizer:
+      "REQUEST DENIED.\n\n" +
+      "EQUIPMENT: REALITY STABILIZER\n\n" +
+      "The reported instability occurs only when " +
+      "the equipment is observed.\n\n" +
+      "Please stop observing the equipment.\n\n" +
+      "STATUS: FUNCTIONING AS DESIGNED.",
+
+    door:
+      "REQUEST DENIED.\n\n" +
+      "EQUIPMENT: EXIT DOOR\n\n" +
+      "The door is operational.\n" +
+      "The destination has not been installed.\n\n" +
+      "A door without a destination is still " +
+      "technically a door.\n\n" +
+      "STATUS: NO ACTION REQUIRED.",
+
+    emergency:
+      "REQUEST PENDING.\n\n" +
+      "EQUIPMENT: EMERGENCY BUTTON\n\n" +
+      "Emergency activation requires prior approval.\n" +
+      "Approval requires emergency activation.\n\n" +
+      "Please submit Form 000 to request permission " +
+      "to request permission.\n\n" +
+      "STATUS: ADMINISTRATIVELY STABLE.",
+
+    elevator:
+      "REQUEST RECEIVED.\n\n" +
+      "EQUIPMENT: ELEVATOR 000\n\n" +
+      "All floors are currently designated FLOOR 0.\n" +
+      "This is not considered a malfunction.\n\n" +
+      "However, a diagnostic inspection has been " +
+      "authorized without authorization.\n\n" +
+      "STATUS: CALIBRATION AVAILABLE."
+  };
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const selected = equipment.value;
+    if (!selected || !problem.value.trim()) return;
+
+    output.textContent = responses[selected];
+
+    elevatorSection.classList.toggle(
+      "hidden",
+      selected !== "elevator"
+    );
+
+    confidential.classList.add("hidden");
+    diagnostic.textContent = "";
+    calibrationAttempts = 0;
+
+    floors.forEach(floor => floor.classList.remove("active"));
+  });
+
+  document.getElementById("recalibrate")
+    .addEventListener("click", () => {
+
+      calibrationAttempts++;
+
+      floors.forEach((floor, index) => {
+        floor.classList.toggle(
+          "active",
+          index === (calibrationAttempts - 1) % floors.length
+        );
+      });
+
+      if (calibrationAttempts === 1) {
+        diagnostic.textContent =
+          "CALIBRATION ATTEMPT 01\n\n" +
+          "Floor coordinates recalculated.\n" +
+          "All destinations remain FLOOR 0.\n\n" +
+          "ERROR: LOCATION CANNOT BE VERIFIED.";
+      } else {
+        diagnostic.textContent =
+          "CALIBRATION ATTEMPT 02\n\n" +
+          "Multiple spatial configurations detected.\n" +
+          "Physical movement: NONE.\n" +
+          "Destination displacement: CONFIRMED.\n\n" +
+          "MAINTENANCE NOTE DECLASSIFIED.";
+
+        confidential.classList.remove("hidden");
+      }
+    });
+
+  document.getElementById("reset")
+    .addEventListener("click", () => {
+      form.reset();
+      output.textContent = "";
+      diagnostic.textContent = "";
+      elevatorSection.classList.add("hidden");
+      confidential.classList.add("hidden");
+      calibrationAttempts = 0;
+      floors.forEach(floor => floor.classList.remove("active"));
+    });
+})();
+</script>
+
+</body>
+</html>
