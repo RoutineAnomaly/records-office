@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
 <title>Incident Report — File 002</title>
 <style>
 :root {
@@ -52,7 +52,7 @@ h2 { font-size: 15px; color: var(--green); }
   border: 1px solid var(--line);
   border-radius: 5px;
 }
-.event span { flex: 1; }
+.event > span { flex: 1; }
 .time { color: var(--amber); }
 .controls { display: flex; flex-direction: column; gap: 5px; }
 button {
@@ -70,7 +70,7 @@ button:focus-visible {
   outline-offset: 3px;
 }
 button:disabled { opacity: .35; cursor: default; }
-.controls button { padding: 2px 10px; }
+.controls button { min-width: 48px; min-height: 40px; padding: 8px 14px; }
 .actions { display: flex; flex-wrap: wrap; gap: 10px; }
 .output {
   margin-top: 20px;
@@ -80,6 +80,8 @@ button:disabled { opacity: .35; cursor: default; }
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+/* Zone toujours présente (annoncée par les lecteurs d'écran), mais invisible tant qu'elle est vide */
+.output:empty { margin: 0; padding: 0; border: 0; }
 .hidden { display: none; }
 footer {
   margin-top: 25px;
@@ -87,6 +89,21 @@ footer {
   padding-top: 15px;
   color: var(--muted);
   font-size: 11px;
+}
+.return-link {
+  display: inline-block;
+  padding: 10px 15px;
+  margin-bottom: 18px;
+  color: var(--green);
+  background: #20342d;
+  border: 1px solid #47745c;
+  border-radius: 4px;
+  text-decoration: none;
+}
+.return-link:hover { background: #2b4b39; }
+.return-link:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
 }
 @media(max-width:450px) {
   main { padding: 16px; }
@@ -119,8 +136,7 @@ footer {
       <button id="reset">RESET</button>
     </div>
 
-    <div id="output" class="output hidden"
-         role="status" aria-live="polite"></div>
+    <div id="output" class="output" role="status" aria-live="polite"></div>
   </section>
 
   <section id="archive" class="hidden">
@@ -140,27 +156,16 @@ footer {
   </section>
 
   <footer>
-    
-    <a href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
-       target="_top"
-       style="
-         display: inline-block;
-         padding: 10px 15px;
-         margin-bottom: 18px;
-         color: #a3e3ba;
-         background: #20342d;
-         border: 1px solid #47745c;
-         border-radius: 4px;
-         text-decoration: none;
-       ">
+    <a class="return-link"
+       href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
+       target="_top" rel="noopener">
       ← RETURN TO RECORDS DIRECTORY
     </a>
-    
+
     <div>
       BUILD 0.0.2 // ALL ANOMALIES WITHIN NORMAL PARAMETERS
     </div>
- 
-</footer>
+  </footer>
 </main>
 
 <script>
@@ -173,6 +178,7 @@ footer {
 
   let events = original.map(e => ({...e}));
   let attempts = 0;
+  let focusAfter = null;          // pour garder le focus clavier après chaque déplacement
 
   const list = document.getElementById("events");
   const output = document.getElementById("output");
@@ -180,7 +186,6 @@ footer {
 
   function show(message) {
     output.textContent = message;
-    output.classList.remove("hidden");
   }
 
   function render() {
@@ -191,7 +196,10 @@ footer {
       row.className = "event";
 
       const label = document.createElement("span");
-      label.textContent = `${event.time} — ${event.label}`;
+      const time = document.createElement("span");
+      time.className = "time";
+      time.textContent = event.time;
+      label.append(time, ` — ${event.label}`);
 
       const controls = document.createElement("div");
       controls.className = "controls";
@@ -199,6 +207,8 @@ footer {
       ["↑", "↓"].forEach((symbol, direction) => {
         const button = document.createElement("button");
         button.textContent = symbol;
+        button.dataset.id = event.id;
+        button.dataset.dir = direction;
         button.setAttribute("aria-label",
           `${symbol === "↑" ? "Move up" : "Move down"} ${event.label}`);
         button.disabled = direction === 0
@@ -209,6 +219,7 @@ footer {
           const next = index + (direction === 0 ? -1 : 1);
           [events[index], events[next]] =
             [events[next], events[index]];
+          focusAfter = { id: event.id, dir: direction };
           render();
         });
 
@@ -218,6 +229,16 @@ footer {
       row.append(label, controls);
       list.appendChild(row);
     });
+
+    // le bouton qu'on vient d'utiliser est reconstruit : on lui redonne le focus
+    if (focusAfter) {
+      const mine = [...list.querySelectorAll(`button[data-id="${focusAfter.id}"]`)];
+      const target =
+        mine.find(b => Number(b.dataset.dir) === focusAfter.dir && !b.disabled) ||
+        mine.find(b => !b.disabled);
+      if (target) target.focus();
+      focusAfter = null;
+    }
   }
 
   document.getElementById("verify").addEventListener("click", () => {
@@ -243,6 +264,7 @@ footer {
       );
     }
 
+    // L'observation archivée n'apparaît qu'après une tentative de vérification.
     archive.classList.remove("hidden");
   });
 
@@ -262,13 +284,13 @@ footer {
       "that have already happened tomorrow.\n\n" +
       "CASE CLOSED BEFORE OPENING."
     );
-    archive.classList.remove("hidden");
+    // Volontairement : ce rapport ne révèle PAS l'archive.
   });
 
   document.getElementById("reset").addEventListener("click", () => {
     events = original.map(e => ({...e}));
     attempts = 0;
-    output.classList.add("hidden");
+    output.textContent = "";
     archive.classList.add("hidden");
     render();
   });
@@ -278,4 +300,3 @@ footer {
 </script>
 </body>
 </html>
-
