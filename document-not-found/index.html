@@ -1,0 +1,267 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>404 — Document Not Found</title>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0b1012;--panel:#141c1e;
+  --green:#a3e3ba;--muted:#9aada6;
+  --paper:#e5dbc5;--ink:#30352f;
+  --red:#a5433d;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;padding:28px 14px;
+  background:var(--bg);color:#e0e9e4;
+  font:14px/1.6 Consolas,"Courier New",monospace;
+}
+main{max-width:760px;margin:auto}
+header{border-bottom:1px solid #354747;padding-bottom:20px}
+small{color:var(--green);letter-spacing:1px}
+h1{font-size:24px;margin:8px 0}
+.muted{color:var(--muted)}
+.desk{
+  margin-top:24px;padding:28px 15px;
+  background:repeating-linear-gradient(
+    35deg,#1b2623 0,#1b2623 3px,
+    #1e2a26 3px,#1e2a26 6px
+  );
+  border:1px solid #354747;border-radius:8px;
+}
+.paper{
+  position:relative;max-width:510px;min-height:390px;
+  margin:auto;padding:32px 26px;
+  background:var(--paper);color:var(--ink);
+  box-shadow:5px 10px 25px #0008;
+  border:1px solid #b5aa92;
+  transition:transform .65s,background .65s;
+  overflow:hidden;
+}
+.paper:before{
+  content:"";position:absolute;inset:9px;
+  border:1px solid #b5aa9260;pointer-events:none;
+}
+.paper h2{font-size:18px;letter-spacing:2px}
+.paper .rule{border-top:2px solid #666c5b;margin:18px 0}
+.line{height:1px;background:#b8ae99;margin:18px 0}
+.status{font-size:12px;color:#666b61}
+.stamp-mark{
+  position:absolute;top:46%;left:50%;
+  transform:translate(-50%,-50%) rotate(-14deg) scale(1.2);
+  border:5px double var(--red);
+  border-radius:6px;padding:10px 15px;
+  color:var(--red);font-weight:bold;
+  font-size:clamp(18px,5vw,30px);
+  text-align:center;letter-spacing:2px;
+  opacity:0;pointer-events:none;
+  transition:opacity .18s,transform .35s;
+  max-width:90%;
+}
+.stamp-mark.show{
+  opacity:.82;
+  transform:translate(-50%,-50%) rotate(-14deg) scale(1);
+}
+.paper.revealed{
+  background:#d3c7ab;
+  transform:rotate(1deg);
+}
+.secret{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  background:#d3c7ab;color:#283a30;
+  text-align:center;padding:20px;
+  opacity:0;visibility:hidden;
+  transition:opacity .6s,visibility .6s;
+}
+.paper.revealed .secret{opacity:1;visibility:visible}
+.secret .symbol{
+  font-size:clamp(45px,12vw,75px);
+  color:#315b40;
+}
+.secret .fragment{
+  font-size:clamp(32px,9vw,55px);
+  font-weight:bold;letter-spacing:5px;
+  color:#315b40;
+}
+.tray{
+  display:flex;justify-content:center;
+  flex-wrap:wrap;gap:13px;margin-top:24px;
+}
+.stamp{
+  position:relative;
+  min-width:135px;min-height:85px;
+  padding:13px 12px;
+  border:3px solid #77534d;
+  border-radius:6px;
+  background:linear-gradient(#6c4d42,#382c29);
+  color:#f3d8c4;
+  font:700 13px Consolas,monospace;
+  cursor:pointer;
+  box-shadow:0 6px 0 #1a1210,0 9px 15px #0008;
+  transition:transform .12s,box-shadow .12s;
+}
+.stamp:before{
+  content:"";display:block;
+  width:48px;height:13px;margin:0 auto 10px;
+  border-radius:12px 12px 3px 3px;
+  background:#a88468;
+  border:2px solid #34241e;
+}
+.stamp:hover{filter:brightness(1.15)}
+.stamp:active{
+  transform:translateY(5px);
+  box-shadow:0 1px 0 #1a1210;
+}
+.stamp:focus-visible,.back:focus-visible{
+  outline:3px solid #eac58c;outline-offset:4px;
+}
+.notice{
+  min-height:55px;margin-top:24px;
+  padding:13px;border:1px solid #354747;
+  background:#101819;color:var(--green);
+  text-align:center;
+}
+.back{
+  display:inline-block;margin-top:25px;
+  color:var(--green);text-decoration:none;
+}
+footer{margin-top:25px;color:#758c82;font-size:11px}
+[hidden]{display:none!important}
+@media(max-width:450px){
+  .paper{min-height:360px;padding:24px 18px}
+  .stamp{min-width:100px;flex:1;font-size:11px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*:before,*:after{transition:none!important}
+}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <small>ROUTINE ANOMALY // RECORDS OFFICE</small>
+  <h1>ERROR 404 — DOCUMENT FOUND</h1>
+  <div class="muted">FILE 404 / EXISTENCE DISPUTED</div>
+</header>
+
+<div class="desk">
+  <article class="paper" id="paper">
+    <small style="color:#6d7568">OFFICIAL RECORD // 404</small>
+    <h2>DOCUMENT STATUS REPORT</h2>
+    <div class="rule"></div>
+    <p>REFERENCE: 404-NULL</p>
+    <p>DEPARTMENT: RECORDS &amp; DENIALS</p>
+    <p>SUBJECT: DOCUMENT EXISTENCE</p>
+    <div class="line"></div>
+    <p class="status">
+      This document has not been found.
+      Its absence has been recorded.
+    </p>
+    <p class="status">
+      Classification remains pending.
+    </p>
+    <div class="stamp-mark" id="mark"></div>
+
+    <div class="secret" id="secret" aria-hidden="true">
+      <div class="symbol">♣</div>
+      <div class="fragment">DESVE</div>
+      <p>UNREGISTERED FRAGMENT RECOVERED</p>
+      <p style="font-size:11px">
+        THIS DOCUMENT NEVER EXISTED.<br>
+        ITS CONTENTS HAVE BEEN ARCHIVED.
+      </p>
+    </div>
+  </article>
+</div>
+
+<div class="tray" id="tray">
+  <button class="stamp" type="button" data-stamp="MISSING">
+    MISSING
+  </button>
+  <button class="stamp" type="button" data-stamp="DESTROYED">
+    DESTROYED
+  </button>
+  <button class="stamp" type="button" data-stamp="NEVER EXISTED">
+    NEVER EXISTED
+  </button>
+</div>
+
+<div class="notice" id="notice" role="status" aria-live="polite">
+  RECORD AWAITING CLASSIFICATION.
+</div>
+
+<a class="back"
+ href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
+ target="_top">← RETURN TO RECORDS DIRECTORY</a>
+
+<footer>
+  BUILD 0.0.404 // THIS PAGE DOES NOT EXIST.
+</footer>
+</main>
+
+<script>
+(()=>{
+  const paper=document.getElementById("paper");
+  const mark=document.getElementById("mark");
+  const notice=document.getElementById("notice");
+  const tray=document.getElementById("tray");
+  const secret=document.getElementById("secret");
+
+  let completed=false;
+  let pending=null;
+
+  const responses={
+    "MISSING":
+      "CLASSIFICATION REJECTED. MISSING ITEMS MUST FIRST BE LOCATED.",
+    "DESTROYED":
+      "CLASSIFICATION REJECTED. NO DESTRUCTION ORDER EXISTS.",
+    "NEVER EXISTED":
+      "CLASSIFICATION ACCEPTED. EXISTENCE DENIED."
+  };
+
+  tray.addEventListener("click",event=>{
+    const button=event.target.closest("button[data-stamp]");
+    if(!button||completed)return;
+
+    const choice=button.dataset.stamp;
+
+    if(pending!==null){
+      clearTimeout(pending);
+      pending=null;
+    }
+
+    mark.classList.remove("show");
+    mark.textContent=choice;
+
+    // Restart the ink impression animation.
+    void mark.offsetWidth;
+    mark.classList.add("show");
+
+    notice.textContent=responses[choice];
+
+    if(choice==="NEVER EXISTED"){
+      completed=true;
+      tray.querySelectorAll("button").forEach(b=>{
+        b.disabled=true;
+        b.style.opacity=".4";
+      });
+
+      pending=setTimeout(()=>{
+        paper.classList.add("revealed");
+        mark.classList.remove("show");
+        secret.setAttribute("aria-hidden","false");
+        notice.textContent=
+          "ERROR: DOCUMENT CONTENTS RECOVERED.";
+      },850);
+    }
+  });
+})();
+</script>
+</body>
+</html>
