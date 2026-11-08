@@ -1,0 +1,437 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Archived Correspondence — File 004</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b1012;
+  --panel: #141c1e;
+  --line: #354747;
+  --green: #a3e3ba;
+  --text: #e0e9e4;
+  --muted: #9aada6;
+  --amber: #eac58c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 14px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.65 Consolas, "Courier New", monospace;
+}
+main {
+  max-width: 720px;
+  margin: auto;
+  padding: 25px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+}
+small {
+  color: var(--green);
+  letter-spacing: 1px;
+}
+h1 { font-size: 22px; margin: 8px 0; }
+h2 { font-size: 15px; color: var(--green); }
+.muted { color: var(--muted); }
+.amber { color: var(--amber); }
+.status { color: var(--amber); }
+button, .return-link {
+  background: #20342d;
+  color: var(--green);
+  border: 1px solid #47745c;
+  border-radius: 4px;
+  padding: 11px 15px;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover, .return-link:hover {
+  background: #2b4b39;
+}
+button:focus-visible,
+.return-link:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+button:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+.mail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.mail {
+  width: 100%;
+  min-height: 130px;
+  text-align: left;
+  background: #0b1213;
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.mail:hover { background: #1c2a29; }
+.mail.selected {
+  border: 2px solid var(--amber);
+  background: #2b2a20;
+}
+.mail strong {
+  display: block;
+  color: var(--green);
+  margin-bottom: 9px;
+}
+.mail span {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+}
+.document, .output, .restricted {
+  margin-top: 18px;
+  padding: 18px;
+  background: #09100f;
+  border: 1px solid var(--line);
+  overflow-wrap: anywhere;
+}
+.document p { margin: 9px 0; }
+.output {
+  white-space: pre-wrap;
+  border-left: 3px solid var(--green);
+}
+.output:empty {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.restricted {
+  border: 1px dashed var(--amber);
+  background: #171a16;
+}
+.restricted h2 { color: var(--amber); }
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.route {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0;
+}
+.route-node {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+  border: 1px solid var(--line);
+  padding: 12px 4px;
+  font-size: 11px;
+}
+.route-node.unknown {
+  border-color: var(--amber);
+  color: var(--amber);
+}
+.arrow { color: var(--amber); }
+.hidden { display: none; }
+footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+.return-link {
+  display: inline-block;
+  margin-bottom: 18px;
+  text-decoration: none;
+}
+@media(max-width: 480px) {
+  main { padding: 16px; }
+  h1 { font-size: 19px; }
+  .mail-grid { grid-template-columns: 1fr; }
+  .route { gap: 4px; }
+  .route-node { font-size: 9px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <small>ROUTINE ANOMALY // CORRESPONDENCE DIVISION</small>
+    <h1>ARCHIVED CORRESPONDENCE</h1>
+    <div class="muted">FILE 004 — DELIVERY DISCREPANCY</div>
+    <div class="status">STATUS: FOUR RECORDS RECOVERED</div>
+  </header>
+
+  <section>
+    <h2>UNDELIVERED COMMUNICATIONS</h2>
+    <p>
+      Four archived messages require inspection.
+      One delivery record contains an impossible route.
+    </p>
+    <p class="muted">
+      Open the correspondence, examine the tracking
+      information, then flag the suspicious record.
+    </p>
+
+    <div id="mailGrid" class="mail-grid"></div>
+
+    <div id="document" class="document hidden"></div>
+
+    <div class="actions">
+      <button id="investigate" disabled>
+        INVESTIGATE DELIVERY ROUTE
+      </button>
+      <button id="reset">RESET INVESTIGATION</button>
+    </div>
+
+    <div id="output" class="output"
+         role="status" aria-live="polite"></div>
+  </section>
+
+  <section id="routeSection" class="hidden">
+    <h2>RECOVERED DELIVERY ROUTE</h2>
+    <div class="route" aria-label="Recovered route">
+      <div class="route-node">SENDER<br>KNOWN</div>
+      <span class="arrow" aria-hidden="true">→</span>
+      <div class="route-node unknown">TRANSIT<br>UNKNOWN</div>
+      <span class="arrow" aria-hidden="true">→</span>
+      <div class="route-node">ARRIVAL<br>VERIFIED</div>
+    </div>
+    <p class="muted">
+      The letter has arrived. The route has not.
+    </p>
+  </section>
+
+  <section id="restricted" class="restricted hidden">
+    <h2>RESTRICTED CORRESPONDENCE NOTE</h2>
+    <p class="amber">CLASSIFICATION: MISDIRECTED REALITY</p>
+    <p>
+      The sender and recipient were not located
+      in the same accessible space.
+    </p>
+    <p>
+      The message did not travel along a conventional
+      delivery route. It crossed a passage connecting
+      otherwise separate locations.
+    </p>
+    <p>
+      What do we call a doorway or passage connecting
+      two different worlds or realities? (7)
+    </p>
+    <p class="muted">
+      The department has declined to acknowledge
+      the existence of the passage.
+    </p>
+  </section>
+
+  <footer>
+    <a class="return-link"
+       href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
+       target="_top">
+      ← RETURN TO RECORDS DIRECTORY
+    </a>
+    <div>BUILD 0.0.4 // ALL MESSAGES ACCOUNTED FOR</div>
+  </footer>
+</main>
+
+<script>
+(() => {
+  const records = [
+    {
+      id: "004-A",
+      subject: "Routine Office Notice",
+      from: "Records Department",
+      to: "Maintenance Division",
+      origin: "Building A",
+      transit: "Internal Mailroom",
+      destination: "Building B",
+      status: "Delivered",
+      message:
+        "Please confirm receipt of the notice confirming " +
+        "that no confirmation is necessary."
+    },
+    {
+      id: "004-B",
+      subject: "Delayed Reminder",
+      from: "Scheduling Office",
+      to: "Current Occupant",
+      origin: "Office 12",
+      transit: "Central Sorting",
+      destination: "Office 14",
+      status: "Delivered late",
+      message:
+        "This reminder should have reached you yesterday. " +
+        "Please consider it received on time."
+    },
+    {
+      id: "004-C",
+      subject: "Return to Sender",
+      from: "The Last Now-Here",
+      to: "Unknown Recipient",
+      origin: "Location N-0",
+      transit: "NO REGISTERED TRANSIT POINT",
+      destination: "Records Office",
+      status: "Delivered / Route Unverified",
+      message:
+        "I sent this letter from somewhere that " +
+        "doesn't exist. It arrived anyway."
+    },
+    {
+      id: "004-D",
+      subject: "Address Correction",
+      from: "Personnel Department",
+      to: "Former Employee",
+      origin: "Building C",
+      transit: "Internal Mailroom",
+      destination: "Forwarding Office",
+      status: "Forwarded",
+      message:
+        "Your previous address has been updated. " +
+        "Your current address remains under review."
+    }
+  ];
+
+  const grid = document.getElementById("mailGrid");
+  const documentPanel = document.getElementById("document");
+  const investigate = document.getElementById("investigate");
+  const output = document.getElementById("output");
+  const routeSection = document.getElementById("routeSection");
+  const restricted = document.getElementById("restricted");
+
+  let selected = null;
+  let attempts = 0;
+
+  function addLine(parent, label, value) {
+    const p = document.createElement("p");
+    const strong = document.createElement("strong");
+    strong.textContent = label + ": ";
+    p.append(strong, document.createTextNode(value));
+    parent.appendChild(p);
+  }
+
+  function render() {
+    grid.replaceChildren();
+
+    records.forEach(record => {
+      const button = document.createElement("button");
+      button.className = "mail";
+      button.type = "button";
+      button.setAttribute(
+        "aria-pressed",
+        String(selected === record.id)
+      );
+
+      if (selected === record.id) {
+        button.classList.add("selected");
+      }
+
+      const heading = document.createElement("strong");
+      heading.textContent = "MESSAGE " + record.id;
+
+      const subject = document.createElement("span");
+      subject.textContent = record.subject;
+
+      const status = document.createElement("span");
+      status.textContent = "STATUS: " + record.status;
+
+      button.append(heading, subject, status);
+
+      button.addEventListener("click", () => {
+        selected = record.id;
+        output.textContent = "";
+        routeSection.classList.add("hidden");
+        restricted.classList.add("hidden");
+
+        showRecord(record);
+        render();
+
+        const buttons = [...grid.querySelectorAll("button")];
+        buttons.find(b =>
+          b.textContent.includes(record.id)
+        )?.focus();
+      });
+
+      grid.appendChild(button);
+    });
+
+    investigate.disabled = !selected;
+  }
+
+  function showRecord(record) {
+    documentPanel.replaceChildren();
+
+    const heading = document.createElement("h2");
+    heading.textContent = "RECOVERED MESSAGE " + record.id;
+    documentPanel.appendChild(heading);
+
+    addLine(documentPanel, "FROM", record.from);
+    addLine(documentPanel, "TO", record.to);
+    addLine(documentPanel, "ORIGIN", record.origin);
+    addLine(documentPanel, "TRANSIT", record.transit);
+    addLine(documentPanel, "DESTINATION", record.destination);
+    addLine(documentPanel, "STATUS", record.status);
+    addLine(documentPanel, "MESSAGE", record.message);
+
+    documentPanel.classList.remove("hidden");
+  }
+
+  investigate.addEventListener("click", () => {
+    if (!selected) return;
+    attempts++;
+
+    if (selected === "004-C") {
+      output.textContent =
+        "DELIVERY AUDIT COMPLETE.\n\n" +
+        "RECORD 004-C FLAGGED.\n" +
+        "Origin: unregistered.\n" +
+        "Transit: unrecorded.\n" +
+        "Arrival: confirmed.\n\n" +
+        "ERROR: DELIVERY WITHOUT A VALID ROUTE.\n\n" +
+        "RESTRICTED NOTE RELEASED.";
+
+      routeSection.classList.remove("hidden");
+      restricted.classList.remove("hidden");
+    } else {
+      output.textContent =
+        "DELIVERY AUDIT " + attempts + "\n\n" +
+        "No spatial discrepancy detected.\n" +
+        "The message may be late, misdirected, " +
+        "or administratively confusing.\n\n" +
+        "These conditions are considered normal.\n\n" +
+        "PLEASE INSPECT ANOTHER RECORD.";
+
+      routeSection.classList.add("hidden");
+      restricted.classList.add("hidden");
+    }
+  });
+
+  document.getElementById("reset")
+    .addEventListener("click", () => {
+      selected = null;
+      attempts = 0;
+      output.textContent = "";
+      documentPanel.replaceChildren();
+      documentPanel.classList.add("hidden");
+      routeSection.classList.add("hidden");
+      restricted.classList.add("hidden");
+      render();
+      grid.querySelector("button")?.focus();
+    });
+
+  render();
+})();
+</script>
+</body>
+</html>
