@@ -1,0 +1,310 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Observation Log — REF. 008</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b1012;
+  --panel: #141c1e;
+  --line: #354747;
+  --green: #a3e3ba;
+  --text: #e0e9e4;
+  --muted: #9aada6;
+  --amber: #eac58c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 25px 14px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.6 Consolas, "Courier New", monospace;
+}
+main {
+  max-width: 740px;
+  margin: auto;
+  background: var(--panel);
+  padding: 25px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+small {
+  color: var(--green);
+  letter-spacing: 1px;
+}
+h1 {
+  margin: 8px 0;
+  font-size: 23px;
+}
+.muted { color: var(--muted); }
+.monitor {
+  margin: 24px 0;
+  border: 1px solid #47745c;
+  background: #050d09;
+  padding: 20px;
+  min-height: 255px;
+  box-shadow: inset 0 0 35px #12352255;
+}
+.monitor-head {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: var(--green);
+  font-size: 11px;
+  border-bottom: 1px solid #254735;
+  padding-bottom: 12px;
+}
+.log {
+  margin-top: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.entry {
+  animation: appear .3s ease-out;
+  overflow-wrap: anywhere;
+}
+.entry::before {
+  content: "> ";
+  color: #65bb83;
+}
+@keyframes appear {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.controls {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+button, .back {
+  font: inherit;
+  min-height: 48px;
+  padding: 12px;
+  background: #20342d;
+  color: var(--green);
+  border: 1px solid #47745c;
+  border-radius: 4px;
+  cursor: pointer;
+}
+button:hover, .back:hover { background: #2b4b39; }
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+button:disabled {
+  opacity: .45;
+  cursor: default;
+}
+.notice {
+  margin-top: 20px;
+  color: var(--muted);
+  font-size: 12px;
+}
+.result {
+  margin-top: 20px;
+  padding: 18px;
+  border: 1px solid var(--amber);
+  background: #29291e;
+  color: var(--amber);
+}
+.result h2 {
+  font-size: 16px;
+  margin-top: 0;
+}
+.back {
+  display: inline-block;
+  text-decoration: none;
+  margin-top: 25px;
+}
+footer {
+  margin-top: 24px;
+  padding-top: 15px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+[hidden] { display: none !important; }
+@media (max-width: 520px) {
+  main { padding: 16px; }
+  .controls { grid-template-columns: 1fr; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .entry { animation: none; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <small>ROUTINE ANOMALY // OBSERVATION DIVISION</small>
+    <h1>OBSERVATION LOG</h1>
+    <div class="muted">REF. 008 — SUBJECT STATUS: UNCONFIRMED</div>
+  </header>
+
+  <section class="monitor" aria-label="Observation terminal">
+    <div class="monitor-head">
+      <span>LIVE OBSERVATION FEED</span>
+      <span id="status">● ACTIVE</span>
+    </div>
+    <div class="log" id="log" role="log" aria-live="polite">
+      <div class="entry">Observation session initialized.</div>
+      <div class="entry">Subject has opened the observation log.</div>
+      <div class="entry">Subject may now suspect the observation log is observing them.</div>
+    </div>
+  </section>
+
+  <div class="controls" id="controls">
+    <button type="button" data-action="observe">
+      OBSERVE
+    </button>
+    <button type="button" data-action="ignore">
+      IGNORE
+    </button>
+    <button type="button" data-action="leave">
+      LEAVE
+    </button>
+  </div>
+
+  <p class="notice" id="notice">
+    Every interaction is considered voluntary.
+    No actual personal information is collected.
+  </p>
+
+  <section class="result" id="result" hidden>
+    <h2>FINAL OBSERVATION</h2>
+    <p>
+      Subject has demonstrated an unusual interest
+      in being observed.
+    </p>
+    <p>
+      The observation department has concluded
+      that the observer may also be the observed.
+    </p>
+    <p><strong>STATUS: MUTUAL OBSERVATION CONFIRMED.</strong></p>
+    <p>
+      Your file has been closed.
+      It will continue to be monitored.
+    </p>
+    <button type="button" id="restart">
+      REOPEN FILE
+    </button>
+  </section>
+
+  <a class="back"
+     href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
+     target="_top">
+    ← RETURN TO RECORDS DIRECTORY
+  </a>
+
+  <footer>
+    BUILD 0.0.8 // WE HAVE NOTICED YOUR INTEREST.
+  </footer>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const log = document.getElementById("log");
+  const controls = document.getElementById("controls");
+  const result = document.getElementById("result");
+  const status = document.getElementById("status");
+  const restart = document.getElementById("restart");
+
+  let count = 0;
+
+  const responses = {
+    observe: [
+      "Subject has requested further observation.",
+      "Subject appears to believe observation is a service.",
+      "Observer is now being observed by the subject."
+    ],
+    ignore: [
+      "Subject has attempted to ignore the observation system.",
+      "Ignoring the system has been classified as interaction.",
+      "Subject's non-participation has been recorded as participation."
+    ],
+    leave: [
+      "Subject has requested departure.",
+      "Departure request denied. Subject is still present.",
+      "Subject's intention to leave has been filed as continued interest."
+    ]
+  };
+
+  const used = {
+    observe: 0,
+    ignore: 0,
+    leave: 0
+  };
+
+  function addEntry(text) {
+    const line = document.createElement("div");
+    line.className = "entry";
+    line.textContent = text;
+    log.appendChild(line);
+    line.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+  }
+
+  controls.addEventListener("click", event => {
+    const button = event.target.closest("button[data-action]");
+    if (!button || !controls.contains(button)) return;
+
+    const action = button.dataset.action;
+    const index = Math.min(
+      used[action],
+      responses[action].length - 1
+    );
+
+    addEntry(responses[action][index]);
+
+    used[action]++;
+    count++;
+
+    if (count === 5) {
+      addEntry("Behavioral assessment complete.");
+      addEntry("Contradictory evidence has been accepted.");
+
+      result.hidden = false;
+      status.textContent = "● REVIEW COMPLETE";
+
+      controls.querySelectorAll("button").forEach(btn => {
+        btn.disabled = true;
+      });
+    }
+  });
+
+  restart.addEventListener("click", () => {
+    count = 0;
+    Object.keys(used).forEach(key => {
+      used[key] = 0;
+    });
+
+    log.replaceChildren();
+
+    [
+      "Observation session initialized.",
+      "Subject has opened the observation log.",
+      "Subject may now suspect the observation log is observing them."
+    ].forEach(addEntry);
+
+    result.hidden = true;
+    status.textContent = "● ACTIVE";
+
+    controls.querySelectorAll("button").forEach(btn => {
+      btn.disabled = false;
+    });
+  });
+})();
+</script>
+</body>
+</html>
