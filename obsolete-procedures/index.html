@@ -1,0 +1,897 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Rain Analysis — Signal (9)</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b1012;
+  --panel: #141c1e;
+  --line: #354747;
+  --green: #a3e3ba;
+  --text: #e0e9e4;
+  --muted: #9aada6;
+  --amber: #eac58c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 14px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.65 Consolas, "Courier New", monospace;
+}
+main {
+  max-width: 680px;
+  margin: auto;
+  padding: 25px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+header {
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 18px;
+  margin-bottom: 20px;
+}
+small { color: var(--green); letter-spacing: 1px; }
+h1 { font-size: 22px; margin: 8px 0; }
+.muted { color: var(--muted); }
+
+.screen {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: #050d09;
+  line-height: 0;
+}
+canvas { display: block; width: 100%; }
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+button {
+  background: #20342d;
+  color: var(--green);
+  border: 1px solid #47745c;
+  border-radius: 4px;
+  padding: 10px 14px;
+  min-height: 44px;
+  font: inherit;
+  cursor: pointer;
+}
+button:hover { background: #2b4b39; }
+button:focus-visible,
+input:focus-visible,
+summary:focus-visible,
+a:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+button[aria-pressed="true"] {
+  background: #2d5a43;
+  border-color: var(--green);
+  box-shadow: 0 0 14px rgba(163,227,186,.35);
+}
+button:disabled { opacity: .5; cursor: default; }
+.focus {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+  min-width: 150px;
+  font-size: 11px;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+.meter {
+  flex: 1;
+  height: 8px;
+  background: #0b1213;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.meter i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(90deg, #47745c, var(--green));
+}
+
+/* Stable message height */
+.out {
+  display: grid;
+  margin-top: 16px;
+  padding: 16px;
+  background: #09100f;
+  border-left: 3px solid var(--green);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
+.out > * { grid-area: 1 / 1; }
+#sizer {
+  display: grid;
+  visibility: hidden;
+  pointer-events: none;
+}
+#sizer > div { grid-area: 1 / 1; }
+
+form {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+input {
+  flex: 1;
+  min-width: 160px;
+  min-height: 44px;
+  padding: 10px 12px;
+  font: inherit;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--text);
+  background: #0b1213;
+  border: 1px solid #47745c;
+  border-radius: 4px;
+}
+input:disabled { opacity: .6; }
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+details {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 12px;
+}
+summary { cursor: pointer; }
+
+.return-link {
+  display: inline-block;
+  color: var(--green);
+  text-decoration: none;
+  border: 1px solid #47745c;
+  background: #20342d;
+  border-radius: 4px;
+  padding: 11px 15px;
+  margin-bottom: 15px;
+}
+.return-link:hover { background: #2b4b39; }
+[hidden] { display: none !important; }
+
+footer {
+  margin-top: 25px;
+  border-top: 1px solid var(--line);
+  padding-top: 15px;
+  color: var(--muted);
+  font-size: 11px;
+}
+@media(max-width:450px) {
+  main { padding: 16px; }
+  h1 { font-size: 19px; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <small>RAIN ANALYSIS // SIGNAL INTERCEPT</small>
+    <h1>THE RAIN IS NOT RANDOM</h1>
+    <div class="muted">ENTRY (9) — DECODING IN PROGRESS</div>
+  </header>
+
+  <div class="screen" id="screen">
+    <canvas
+      id="rain"
+      role="img"
+      aria-label="Animated green code rain with three six-letter columns. The middle column pulses brighter. Use Slow Time or the accessible text decoder below."
+    ></canvas>
+  </div>
+
+  <div class="bar" id="bar">
+    <button type="button" id="slow" aria-pressed="false">
+      SLOW TIME [SPACE]
+    </button>
+    <div class="focus" id="focusBox">
+      <span>FOCUS</span>
+      <div class="meter" aria-hidden="true">
+        <i id="fill"></i>
+      </div>
+    </div>
+  </div>
+
+  <div class="out">
+    <div id="sizer" aria-hidden="true"></div>
+    <div id="msg" role="status" aria-live="polite"></div>
+  </div>
+
+  <form id="form" autocomplete="off">
+    <label for="word" class="sr">
+      Type the signal you read in the rain
+    </label>
+    <input
+      id="word"
+      maxlength="24"
+      placeholder="TYPE THE SIGNAL"
+      spellcheck="false"
+    >
+    <button type="submit" id="send">TRANSMIT</button>
+    <button type="button" id="again" hidden>START OVER</button>
+  </form>
+
+  <details>
+    <summary>ACCESSIBLE SIGNAL — TEXT DECODER</summary>
+    <p>
+      The visual rain is optional. Decode the same
+      six-letter signal using these recovered properties:
+    </p>
+    <p>
+      It begins with M and ends with X.
+      Its second letter is A.
+      Its fourth letter is R.
+    </p>
+    <p>
+      The missing letters complete the name of a
+      constructed reality — and a famous
+      science-fiction film.
+    </p>
+    <p class="muted">
+      Enter the six-letter signal above and press TRANSMIT.
+    </p>
+  </details>
+
+  <footer>
+    <a
+      class="return-link"
+      href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
+      target="_top"
+    >← RETURN TO RECORDS DIRECTORY</a>
+    <div>
+      BUILD 0.0.9a // THE SIGNAL WAS NEVER HIDDEN. IT WAS FAST.
+    </div>
+  </footer>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  /* ---------- SETTINGS ---------- */
+
+  const WORD = String.fromCharCode(77, 65, 84, 82, 73, 88);
+
+  const SIGNALS = [
+    { word: "RABBIT", at: 0.18, speed: 10, real: false },
+    { word: WORD,     at: 0.56, speed: 12, real: true },
+    { word: "FOLLOW", at: 0.86, speed: 14, real: false }
+  ];
+
+  const CONFIG = {
+    height: 400,
+    slowFactor: 0.10,
+    drain: 0.09,
+    recharge: 0.15,
+    reenableAt: 0.25
+  };
+
+  const LH = 16;
+  const CW = 14;
+  const TRAIL = 14;
+  const PERIOD = 14;
+
+  const LETTER_ROWS = [1, 3, 5, 7, 9, 11];
+  const LETTER_AT = new Array(PERIOD).fill(-1);
+
+  LETTER_ROWS.forEach((row, k) => {
+    LETTER_AT[row] = k;
+  });
+
+  const NOISE =
+    "0123456789<>/\\|=+*:;#%&@$?!".split("");
+
+  /* ---------- MESSAGES ---------- */
+
+  const HINTS = [
+    "HINT: SIX LETTERS.",
+    "HINT: ONE COLUMN BREATHES. READ IT FROM TOP TO BOTTOM.",
+    "HINT: TIME CAN BE SLOWED. (SPACE)"
+  ];
+
+  const MSG = {
+    intro:
+      "THE RAIN IS NOT RANDOM.\n" +
+      "ONE COLUMN BREATHES.\n" +
+      "SLOW DOWN TO READ IT.",
+
+    introReduced:
+      "MOTION REDUCED.\n" +
+      "THE RAIN IS FROZEN FOR YOU.\n" +
+      "ONE COLUMN IS BRIGHTER.",
+
+    empty:
+      "NO TRANSMISSION DETECTED.",
+
+    wrong: [
+      "NO MATCH.\nTHE SIGNAL IS NOT THAT WORD.",
+      "STILL NO MATCH.\n" +
+      "THE RAIN DOES NOT PUNISH.\n" +
+      "IT JUST CONTINUES."
+    ],
+
+    rabbit:
+      "THAT IS A WORD IN THE RAIN.\n" +
+      "IT IS NOT THE SIGNAL.\n" +
+      "(THE RABBIT SENDS ITS REGARDS.)",
+
+    follow:
+      "TOO OBEDIENT.\n" +
+      "THE SIGNAL IS NOT ASKING YOU TO FOLLOW.",
+
+    success:
+      "SIGNAL ACCEPTED.\n\n" +
+      "THE WORD WAS WAITING IN THE RAIN.\n" +
+      "YOU DID NOT FOLLOW IT. YOU READ IT.\n\n" +
+      "ENTRY (9) RECORDED.",
+
+    energyOut:
+      "FOCUS DEPLETED.\nBREATHE. IT RETURNS.",
+
+    recharging:
+      "FOCUS RECHARGING.\nGIVE IT A MOMENT."
+  };
+
+  function hintsFor(n) {
+    const count =
+      n >= 6 ? 3 :
+      n >= 4 ? 2 :
+      n >= 2 ? 1 : 0;
+
+    return HINTS.slice(0, count).join("\n");
+  }
+
+  function withHints(base, n) {
+    const h = hintsFor(n);
+    return h ? base + "\n\n" + h : base;
+  }
+
+  /* ---------- ELEMENTS ---------- */
+
+  const screenBox = document.getElementById("screen");
+  const canvas = document.getElementById("rain");
+  const ctx = canvas.getContext("2d");
+  const slowBtn = document.getElementById("slow");
+  const focusBox = document.getElementById("focusBox");
+  const fill = document.getElementById("fill");
+  const sizer = document.getElementById("sizer");
+  const msg = document.getElementById("msg");
+  const form = document.getElementById("form");
+  const input = document.getElementById("word");
+  const sendBtn = document.getElementById("send");
+  const againBtn = document.getElementById("again");
+
+  const reduced = window.matchMedia(
+    "(prefers-reduced-motion: reduce)"
+  ).matches;
+
+  /* ---------- STABLE MESSAGE HEIGHT ---------- */
+
+  (function buildSizer() {
+    const all = [
+      MSG.intro,
+      MSG.introReduced,
+      MSG.empty,
+      MSG.success,
+      MSG.energyOut,
+      MSG.recharging
+    ];
+
+    [
+      ...MSG.wrong,
+      MSG.rabbit,
+      MSG.follow
+    ].forEach(base => {
+      all.push(base, withHints(base, 6));
+    });
+
+    all.forEach(t => {
+      const d = document.createElement("div");
+      d.textContent = t;
+      sizer.appendChild(d);
+    });
+  })();
+
+  function say(text) {
+    msg.textContent = text;
+  }
+
+  /* ---------- CODE RAIN ---------- */
+
+  function hash(a, b) {
+    let h =
+      Math.imul(a + 1, 374761393) ^
+      Math.imul(b + 7, 668265263);
+
+    h = Math.imul(
+      h ^ (h >>> 13),
+      1274126177
+    );
+
+    return (h ^ (h >>> 16)) >>> 0;
+  }
+
+  const noiseChar = (c, row) =>
+    NOISE[hash(c, row) % NOISE.length];
+
+  function seeded(seed) {
+    let a = seed >>> 0;
+
+    return () => {
+      a = (a + 0x6D2B79F5) >>> 0;
+
+      let t = Math.imul(
+        a ^ (a >>> 15),
+        1 | a
+      );
+
+      t ^= t + Math.imul(
+        t ^ (t >>> 7),
+        61 | t
+      );
+
+      return (
+        (t ^ (t >>> 14)) >>> 0
+      ) / 4294967296;
+    };
+  }
+
+  let cols = [];
+  let rowsCount = 0;
+  let cssW = 0;
+  let dpr = 1;
+
+  let bullet = false;
+  let energy = 1;
+  let timeScale = 1;
+  let frozen = false;
+
+  let solved = false;
+  let wrongCount = 0;
+  let last = 0;
+  let clockT = 0;
+
+  function layout() {
+    cssW = Math.max(
+      200,
+      screenBox.clientWidth || 640
+    );
+
+    dpr = Math.min(
+      window.devicePixelRatio || 1,
+      2
+    );
+
+    canvas.width = Math.round(cssW * dpr);
+    canvas.height = Math.round(CONFIG.height * dpr);
+    canvas.style.height = CONFIG.height + "px";
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const n = Math.floor(cssW / CW);
+    rowsCount =
+      Math.ceil(CONFIG.height / LH) + 1;
+
+    const rand = seeded(2026);
+
+    const special = new Map(
+      SIGNALS.map(s => [
+        Math.round((n - 1) * s.at),
+        s
+      ])
+    );
+
+    cols = Array.from(
+      { length: n },
+      (_, i) => {
+        const signal = special.get(i) || null;
+
+        return {
+          i,
+          signal,
+          speed: signal
+            ? signal.speed
+            : 6 + rand() * 10,
+          pos: signal
+            ? 0
+            : rand() * 60,
+          phase:
+            rand() * (rowsCount + TRAIL)
+        };
+      }
+    );
+  }
+
+  function drawNoise(col, x, base, frac) {
+    ctx.font =
+      "15px Consolas, 'Courier New', monospace";
+
+    const headRow =
+      (col.pos + col.phase) %
+      (rowsCount + TRAIL);
+
+    for (let r = -1; r <= rowsCount; r++) {
+      const d = headRow - (r + frac);
+
+      if (d < 0 || d >= TRAIL) continue;
+
+      ctx.fillStyle =
+        d < 1
+          ? "#d9ffe6"
+          : "rgba(0,255,110," +
+            ((1 - d / TRAIL) * 0.85).toFixed(3) +
+            ")";
+
+      ctx.fillText(
+        noiseChar(col.i, r - base),
+        x,
+        (r + frac + 1) * LH
+      );
+    }
+  }
+
+  function drawSignal(col, x, base, frac) {
+    const s = col.signal;
+
+    const breathe =
+      0.5 + 0.5 * Math.sin(clockT * 2.2);
+
+    const band = s.real
+      ? (
+          frozen
+            ? 0.16
+            : reduced
+              ? 0.12
+              : 0.04 + 0.06 * breathe
+        )
+      : 0;
+
+    if (band) {
+      ctx.fillStyle =
+        "rgba(0,255,110," +
+        band.toFixed(3) +
+        ")";
+
+      ctx.fillRect(
+        col.i * CW,
+        0,
+        CW,
+        CONFIG.height
+      );
+    }
+
+    for (let r = -1; r <= rowsCount; r++) {
+      const rowAbs = r - base;
+
+      const k = LETTER_AT[
+        ((rowAbs % PERIOD) + PERIOD) %
+        PERIOD
+      ];
+
+      const y = (r + frac + 1) * LH;
+
+      if (k >= 0) {
+        ctx.font =
+          "bold 17px Consolas, 'Courier New', monospace";
+
+        ctx.shadowColor = "#7dffb0";
+        ctx.shadowBlur = s.real ? 10 : 3;
+
+        ctx.globalAlpha =
+          s.real && !reduced
+            ? 0.8 + 0.2 * breathe
+            : 1;
+
+        ctx.fillStyle =
+          s.real ? "#ffffff" : "#8bd2a5";
+
+        ctx.fillText(
+          s.word[k],
+          x,
+          y
+        );
+
+        ctx.shadowBlur = 0;
+        ctx.globalAlpha = 1;
+      } else {
+        ctx.font =
+          "15px Consolas, 'Courier New', monospace";
+
+        ctx.fillStyle =
+          "rgba(60,200,120,0.35)";
+
+        ctx.fillText(
+          noiseChar(col.i, rowAbs),
+          x,
+          y
+        );
+      }
+    }
+  }
+
+  function draw() {
+    ctx.fillStyle = "#050d09";
+    ctx.fillRect(
+      0,
+      0,
+      cssW,
+      CONFIG.height
+    );
+
+    ctx.textAlign = "center";
+    ctx.textBaseline = "alphabetic";
+
+    for (const col of cols) {
+      const x = col.i * CW + CW / 2;
+      const base = Math.floor(col.pos);
+      const frac = col.pos - base;
+
+      if (col.signal) {
+        drawSignal(col, x, base, frac);
+      } else {
+        drawNoise(col, x, base, frac);
+      }
+    }
+  }
+
+  /* ---------- SLOW TIME ---------- */
+
+  function setBullet(on) {
+    bullet = on;
+
+    slowBtn.setAttribute(
+      "aria-pressed",
+      String(on)
+    );
+  }
+
+  function setSlowEnabled() {
+    slowBtn.disabled = solved;
+
+    slowBtn.setAttribute(
+      "aria-disabled",
+      String(solved)
+    );
+  }
+
+  slowBtn.addEventListener("click", () => {
+    if (reduced || solved) return;
+
+    if (bullet) {
+      setBullet(false);
+      return;
+    }
+
+    if (energy < CONFIG.reenableAt) {
+      say(MSG.recharging);
+      return;
+    }
+
+    setBullet(true);
+  });
+
+  document.addEventListener(
+    "keydown",
+    event => {
+      if (
+        event.code !== "Space" &&
+        event.key !== " "
+      ) return;
+
+      const tag =
+        event.target &&
+        event.target.tagName;
+
+      if (
+        tag === "INPUT" ||
+        tag === "TEXTAREA" ||
+        tag === "BUTTON" ||
+        tag === "SUMMARY"
+      ) return;
+
+      event.preventDefault();
+      slowBtn.click();
+    }
+  );
+
+  function frame(t) {
+    const dt = Math.min(
+      (t - (last || t)) / 1000,
+      0.05
+    );
+
+    last = t;
+    clockT += dt;
+
+    if (bullet) {
+      energy = Math.max(
+        0,
+        energy - CONFIG.drain * dt
+      );
+
+      if (energy === 0) {
+        setBullet(false);
+        say(MSG.energyOut);
+      }
+    } else {
+      energy = Math.min(
+        1,
+        energy + CONFIG.recharge * dt
+      );
+    }
+
+    const target = frozen
+      ? 0
+      : bullet
+        ? CONFIG.slowFactor
+        : 1;
+
+    timeScale +=
+      (target - timeScale) *
+      Math.min(1, dt * 6);
+
+    for (const col of cols) {
+      col.pos +=
+        col.speed * timeScale * dt;
+    }
+
+    draw();
+
+    fill.style.width =
+      (energy * 100).toFixed(1) + "%";
+
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- GAME ---------- */
+
+  function reply(base) {
+    wrongCount++;
+    say(withHints(base, wrongCount));
+  }
+
+  form.addEventListener("submit", event => {
+    event.preventDefault();
+
+    if (solved) return;
+
+    const raw = input.value.trim();
+
+    if (!raw) {
+      say(MSG.empty);
+      return;
+    }
+
+    const guess = raw
+      .toUpperCase()
+      .replace(/[^A-Z]/g, "");
+
+    if (
+      guess === WORD ||
+      guess === "THE" + WORD
+    ) {
+      solved = true;
+      frozen = true;
+
+      setBullet(false);
+      setSlowEnabled();
+
+      input.disabled = true;
+      sendBtn.hidden = true;
+      againBtn.hidden = false;
+
+      say(MSG.success);
+      againBtn.focus();
+
+      if (reduced) draw();
+
+    } else if (guess === "RABBIT") {
+      reply(MSG.rabbit);
+
+    } else if (guess === "FOLLOW") {
+      reply(MSG.follow);
+
+    } else {
+      reply(
+        MSG.wrong[Math.min(wrongCount, 1)]
+      );
+    }
+  });
+
+  againBtn.addEventListener("click", () => {
+    solved = false;
+    frozen = false;
+    wrongCount = 0;
+    energy = 1;
+
+    input.disabled = false;
+    input.value = "";
+
+    sendBtn.hidden = false;
+    againBtn.hidden = true;
+
+    setSlowEnabled();
+
+    say(
+      reduced
+        ? MSG.introReduced
+        : MSG.intro
+    );
+
+    if (reduced) draw();
+
+    input.focus();
+  });
+
+  /* ---------- START ---------- */
+
+  layout();
+
+  say(
+    reduced
+      ? MSG.introReduced
+      : MSG.intro
+  );
+
+  setSlowEnabled();
+
+  if (reduced) {
+    slowBtn.hidden = true;
+    focusBox.hidden = true;
+
+    draw();
+
+    const redraw = () => {
+      layout();
+      draw();
+    };
+
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(redraw)
+        .observe(screenBox);
+    } else {
+      window.addEventListener(
+        "resize",
+        redraw
+      );
+    }
+  } else {
+    if (typeof ResizeObserver === "function") {
+      new ResizeObserver(layout)
+        .observe(screenBox);
+    } else {
+      window.addEventListener(
+        "resize",
+        layout
+      );
+    }
+
+    requestAnimationFrame(frame);
+  }
+})();
+</script>
+</body>
+</html>
