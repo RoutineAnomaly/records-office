@@ -1,1 +1,321 @@
-<img src="./item-005.webp" alt="Unclassified document">
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Unclassified Materials — File 005</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg: #0b1012;
+  --panel: #141c1e;
+  --line: #354747;
+  --green: #a3e3ba;
+  --text: #e0e9e4;
+  --muted: #9aada6;
+  --amber: #eac58c;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  padding: 24px 14px;
+  background: var(--bg);
+  color: var(--text);
+  font: 14px/1.65 Consolas, "Courier New", monospace;
+}
+main {
+  max-width: 760px;
+  margin: auto;
+  padding: 25px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+}
+header {
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line);
+}
+small {
+  color: var(--green);
+  letter-spacing: 1px;
+}
+h1 { font-size: 22px; margin: 8px 0; }
+h2 { font-size: 15px; color: var(--green); }
+.muted { color: var(--muted); }
+.amber { color: var(--amber); }
+.inventory {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 22px 0;
+}
+button, .return-link {
+  font: inherit;
+  cursor: pointer;
+  color: var(--green);
+  background: #20342d;
+  border: 1px solid #47745c;
+  border-radius: 4px;
+  padding: 12px 15px;
+  min-height: 44px;
+}
+button:hover, .return-link:hover {
+  background: #2b4b39;
+}
+button:focus-visible, a:focus-visible {
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+}
+.item {
+  min-height: 135px;
+  text-align: left;
+  background: #0b1213;
+  color: var(--text);
+  border-color: var(--line);
+}
+.item strong {
+  display: block;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+.item span {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+}
+.item[aria-pressed="true"] {
+  border-color: var(--amber);
+  background: #29291e;
+}
+.record {
+  padding: 18px;
+  background: #09100f;
+  border: 1px solid var(--line);
+}
+.record p { margin: 9px 0; }
+.attachment {
+  margin-top: 20px;
+  border: 1px dashed var(--amber);
+  padding: 16px;
+  background: #1b1a15;
+}
+.attachment img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 15px auto;
+  border: 1px solid #67543a;
+}
+.attachment a {
+  color: var(--amber);
+  overflow-wrap: anywhere;
+}
+footer {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  font-size: 11px;
+}
+.return-link {
+  display: inline-block;
+  margin-bottom: 18px;
+  text-decoration: none;
+}
+[hidden] { display: none !important; }
+@media(max-width: 480px) {
+  main { padding: 16px; }
+  h1 { font-size: 19px; }
+  .inventory { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <small>ROUTINE ANOMALY // MATERIALS DIVISION</small>
+    <h1>UNCLASSIFIED MATERIALS</h1>
+    <div class="muted">FILE 005 — INVENTORY DISCREPANCY</div>
+    <div class="amber">STATUS: FOUR OBJECTS RECOVERED</div>
+  </header>
+
+  <section>
+    <h2>STORAGE INVENTORY</h2>
+    <p>
+      Four objects have been recovered from an
+      unregistered storage compartment.
+    </p>
+    <p class="muted">
+      None of the objects have been requested.
+      Select an item to inspect its record.
+    </p>
+
+    <div class="inventory" id="inventory"></div>
+
+    <div class="record" id="record" hidden
+         aria-live="polite"></div>
+  </section>
+
+  <footer>
+    <a class="return-link"
+       href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
+       target="_top">
+      ← RETURN TO RECORDS DIRECTORY
+    </a>
+    <div>
+      BUILD 0.0.5 // NO OBJECTS ARE MISSING. OFFICIALLY.
+    </div>
+  </footer>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const items = [
+    {
+      id: "005-A",
+      name: "Unmanufactured Paperclip",
+      classification: "OFFICE SUPPLIES",
+      origin: "UNKNOWN MANUFACTURER",
+      description:
+        "An ordinary paperclip with no recorded " +
+        "manufacturer. Procurement insists it " +
+        "has always been here.",
+      note:
+        "This object is not considered anomalous " +
+        "until someone attempts to order another."
+    },
+    {
+      id: "005-B",
+      name: "Key Without a Door",
+      classification: "ACCESS EQUIPMENT",
+      origin: "LOCKER 000",
+      description:
+        "A key recovered from a locked cabinet. " +
+        "The corresponding door could not be located.",
+      note:
+        "The key has been returned. The door has not."
+    },
+    {
+      id: "005-C",
+      name: "Self-Addressed Envelope",
+      classification: "CORRESPONDENCE",
+      origin: "INTERNAL MAILROOM",
+      description:
+        "An envelope containing its own delivery " +
+        "confirmation. No sender has been identified.",
+      note:
+        "The department considers this a successful delivery."
+    },
+    {
+      id: "005-D",
+      name: "Unclassified Paper",
+      classification: "UNAVAILABLE",
+      origin: "NOT RECORDED",
+      description:
+        "A folded document recovered without " +
+        "accompanying instructions.",
+      note:
+        "This item has been filed under Miscellaneous " +
+        "because the department responsible for " +
+        "its classification does not exist."
+    }
+  ];
+
+  const inventory = document.getElementById("inventory");
+  const recordPanel = document.getElementById("record");
+
+  let selected = null;
+
+  function addField(parent, label, value) {
+    const p = document.createElement("p");
+    const strong = document.createElement("strong");
+    strong.textContent = label + ": ";
+    p.append(strong, document.createTextNode(value));
+    parent.appendChild(p);
+  }
+
+  function inspect(item) {
+    selected = item.id;
+    recordPanel.replaceChildren();
+
+    const title = document.createElement("h2");
+    title.textContent = "INVENTORY RECORD " + item.id;
+    recordPanel.appendChild(title);
+
+    addField(recordPanel, "ITEM", item.name);
+    addField(recordPanel, "CLASSIFICATION", item.classification);
+    addField(recordPanel, "ORIGIN", item.origin);
+    addField(recordPanel, "DESCRIPTION", item.description);
+    addField(recordPanel, "OFFICIAL NOTE", item.note);
+
+    if (item.id === "005-D") {
+      const attachment = document.createElement("div");
+      attachment.className = "attachment";
+
+      const heading = document.createElement("h2");
+      heading.textContent = "ATTACHMENT RECOVERED";
+
+      const status = document.createElement("p");
+      status.className = "amber";
+      status.textContent = "DOCUMENT STATUS: UNEXPLAINED";
+
+      const image = document.createElement("img");
+      image.src = "./item-005.webp";
+      image.alt = "Recovered paper with colored markings and symbols";
+      image.loading = "lazy";
+
+      const link = document.createElement("a");
+      link.href = "./item-005.webp";
+      link.target = "_blank";
+      link.rel = "noopener";
+      link.textContent = "OPEN ORIGINAL DOCUMENT ↗";
+
+      const note = document.createElement("p");
+      note.className = "muted";
+      note.textContent =
+        "No transcription is available. " +
+        "The department has declined to explain " +
+        "the markings.";
+
+      attachment.append(heading, status, image, link, note);
+      recordPanel.appendChild(attachment);
+    }
+
+    recordPanel.hidden = false;
+
+    inventory.querySelectorAll("button").forEach(button => {
+      button.setAttribute(
+        "aria-pressed",
+        String(button.dataset.id === selected)
+      );
+    });
+  }
+
+  items.forEach(item => {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "item";
+    button.dataset.id = item.id;
+    button.setAttribute("aria-pressed", "false");
+
+    const code = document.createElement("strong");
+    code.textContent = item.id;
+
+    const name = document.createElement("span");
+    name.textContent = item.name;
+
+    const action = document.createElement("span");
+    action.textContent = "INSPECT RECORD";
+
+    button.append(code, name, action);
+    button.addEventListener("click", () => inspect(item));
+    inventory.appendChild(button);
+  });
+})();
+</script>
+</body>
+</html>
