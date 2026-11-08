@@ -430,15 +430,25 @@ footer {
       }
     });
 
-  document.getElementById("reset")
+    document.getElementById("reset")
     .addEventListener("click", () => {
       form.reset();
+      equipment.value = "";
+      problem.value = "";
+  
       output.textContent = "";
       diagnostic.textContent = "";
+  
       elevatorSection.classList.add("hidden");
       confidential.classList.add("hidden");
+  
       calibrationAttempts = 0;
-      floors.forEach(floor => floor.classList.remove("active"));
+  
+      floors.forEach(floor => {
+        floor.classList.remove("active");
+      });
+  
+      equipment.focus();
     });
 })();
 </script>
