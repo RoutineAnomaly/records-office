@@ -1,0 +1,257 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Decision Record — REF. 012</title>
+<style>
+:root {
+  color-scheme: dark;
+  --bg:#0c1012;
+  --panel:#161d20;
+  --line:#39494e;
+  --text:#e6e9e5;
+  --muted:#9faeb0;
+  --green:#a6d7b5;
+  --amber:#f0c78e;
+}
+* { box-sizing:border-box; }
+body {
+  margin:0;
+  min-height:100vh;
+  padding:28px 14px;
+  background:var(--bg);
+  color:var(--text);
+  font:14px/1.65 Consolas,"Courier New",monospace;
+}
+main {
+  max-width:720px;
+  margin:auto;
+  background:var(--panel);
+  border:1px solid var(--line);
+  padding:30px;
+  border-radius:6px;
+}
+header small {
+  color:var(--green);
+  letter-spacing:1px;
+}
+h1 { font-size:25px; margin:9px 0; }
+h2 { font-size:18px; }
+.muted { color:var(--muted); }
+.form {
+  margin-top:25px;
+  padding:24px;
+  background:#101719;
+  border:1px solid var(--line);
+}
+.form-title {
+  font-size:12px;
+  color:var(--green);
+  border-bottom:1px solid var(--line);
+  padding-bottom:12px;
+}
+.question { margin:24px 0; }
+.actions {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
+button, .back {
+  font:inherit;
+  border:1px solid #52765e;
+  border-radius:3px;
+  padding:14px;
+  min-height:48px;
+  background:#22382b;
+  color:var(--green);
+  cursor:pointer;
+}
+button:hover, .back:hover { background:#30513b; }
+button:focus-visible, a:focus-visible {
+  outline:2px solid var(--amber);
+  outline-offset:3px;
+}
+#disagree {
+  background:#272a2b;
+  color:var(--text);
+  border-color:var(--line);
+}
+#disagree:hover { background:#363b3e; }
+.fineprint {
+  margin-top:23px;
+  font-size:11px;
+  color:var(--muted);
+}
+.hidden-choice {
+  display:inline;
+  border:0;
+  padding:0;
+  min-height:0;
+  background:none;
+  color:inherit;
+  text-decoration:underline dotted;
+  text-underline-offset:3px;
+  font:inherit;
+}
+.hidden-choice:hover,
+.hidden-choice:focus-visible {
+  color:var(--amber);
+  background:none;
+}
+.result {
+  margin-top:22px;
+  padding:23px;
+  border:1px solid var(--amber);
+  background:#28271f;
+}
+.result strong { color:var(--amber); }
+.result.escape {
+  border-color:var(--green);
+  background:#16251d;
+}
+.result.escape strong { color:var(--green); }
+#restart { margin-top:12px; }
+.back {
+  display:inline-block;
+  text-decoration:none;
+  margin-top:26px;
+}
+footer {
+  margin-top:25px;
+  padding-top:14px;
+  border-top:1px solid var(--line);
+  color:var(--muted);
+  font-size:11px;
+}
+[hidden] { display:none !important; }
+@media(max-width:520px) {
+  main { padding:17px; }
+  .form { padding:16px; }
+  .actions { grid-template-columns:1fr; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <small>ROUTINE ANOMALY // DECISION DEPARTMENT</small>
+    <h1>DECISION RECORD</h1>
+    <p class="muted">
+      REF. 012 — FORMAL CONSENT VERIFICATION
+    </p>
+  </header>
+
+  <section class="form" id="form">
+    <div class="form-title">
+      FORM 012-B // PARTICIPATION AGREEMENT
+    </div>
+
+    <p class="question">
+      Please indicate whether you agree to the terms
+      of your participation.
+    </p>
+
+    <div class="actions">
+      <button type="button" id="agree">I AGREE</button>
+      <button type="button" id="disagree">I DISAGREE</button>
+    </div>
+
+    <p class="fineprint">
+      All decisions are final.
+      Disagreement will be interpreted as an alternative
+      expression of agreement.
+    </p>
+
+    <p class="fineprint">
+      Clause 0.12:
+      Participation is mandatory unless the subject
+      formally
+      <button type="button"
+              class="hidden-choice"
+              id="withdraw">withdraws</button>
+      from the decision-making process.
+    </p>
+  </section>
+
+  <section class="result" id="result" hidden
+           aria-live="polite">
+    <h2 id="resultTitle"></h2>
+    <p id="resultText"></p>
+    <p id="resultStatus"></p>
+    <button type="button" id="restart">
+      FILE ANOTHER DECISION
+    </button>
+  </section>
+
+  <a class="back"
+     href="https://follow-me-project.notion.site/RECORDS-DIRECTORY-412166c9793280488a3be335a3fc3bf6"
+     target="_top">
+    ← RETURN TO RECORDS DIRECTORY
+  </a>
+
+  <footer>
+    BUILD 0.0.12 // YOUR CHOICE HAS BEEN APPRECIATED.
+  </footer>
+</main>
+
+<script>
+(() => {
+  "use strict";
+
+  const form = document.getElementById("form");
+  const result = document.getElementById("result");
+  const title = document.getElementById("resultTitle");
+  const text = document.getElementById("resultText");
+  const status = document.getElementById("resultStatus");
+
+  function decide(type) {
+    form.hidden = true;
+    result.hidden = false;
+    result.classList.toggle("escape", type === "withdraw");
+
+    if (type === "withdraw") {
+      title.textContent = "DECISION NOT RECORDED";
+      text.textContent =
+        "The subject has declined to participate in the decision-making process. No agreement has been inferred.";
+      status.innerHTML =
+        "<strong>STATUS: AUTONOMOUS DECISION DETECTED.</strong>";
+    } else if (type === "disagree") {
+      title.textContent = "AGREEMENT CONFIRMED";
+      text.textContent =
+        "Your disagreement has been received and processed as an alternative form of consent. Thank you for your cooperation.";
+      status.innerHTML =
+        "<strong>STATUS: AGREEMENT RECORDED.</strong>";
+    } else {
+      title.textContent = "AGREEMENT CONFIRMED";
+      text.textContent =
+        "Your agreement has been recorded. The department confirms that the correct decision was selected.";
+      status.innerHTML =
+        "<strong>STATUS: AGREEMENT RECORDED.</strong>";
+    }
+  }
+
+  document.getElementById("agree").addEventListener(
+    "click", () => decide("agree")
+  );
+
+  document.getElementById("disagree").addEventListener(
+    "click", () => decide("disagree")
+  );
+
+  document.getElementById("withdraw").addEventListener(
+    "click", () => decide("withdraw")
+  );
+
+  document.getElementById("restart").addEventListener(
+    "click", () => {
+      result.hidden = true;
+      form.hidden = false;
+    }
+  );
+})();
+</script>
+</body>
+</html>
